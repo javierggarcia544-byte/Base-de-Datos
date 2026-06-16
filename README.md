@@ -19,7 +19,7 @@ npm run start:dev
 ```
 
 
-# 🔬 Laboratorio Práctico: Implementación de un Nuevo Módulo Modular
+# 🔬 Actividad Práctica: Implementación de un Nuevo Módulo (Modular)
 
 ¡Bienvenidos al laboratorio práctico del backend! En esta actividad pondrán a prueba su comprensión de la **arquitectura modular** y el flujo de datos utilizando **Express, Mongoose y TypeScript**.
 
