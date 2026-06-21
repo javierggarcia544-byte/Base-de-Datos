@@ -1,94 +1,160 @@
-# 📝 Documentación de la Actividad Práctica
-
-### **Título de la Actividad:** CRUD Completo y Relaciones en Arquitectura Modular
+# **Título del Laboratorio:** Arquitectura Modular Avanzada: Relaciones Complejas e Integridad Logística
 
 **Materia:** Programación / Base de Datos
 
-**Enfoque:** Cohesión Arquitectónica y Consistencia de Datos Avanzada.
+**Enfoque:** Escalabilidad, Reutilización de Código y Lógica de Negocio Multicapa.
 
-#### **Objetivo de Aprendizaje:**
+#### **Objetivo del Laboratorio:**
 
-Que el estudiante diseñe, codifique e integre un módulo secundario completo (`Categories`) con sus 5 operaciones fundamentales (CRUD RESTful), conectándolo mediante una relación 1:N con el módulo de `Products` y manejando las restricciones de negocio correspondientes (como evitar el borrado de categorías con productos activos).
+Que el estudiante extienda la API modular añadiendo dos nuevos dominios (`Suppliers` y `Warehouses`) con sus correspondientes operaciones CRUD completas, modelando relaciones de tipo 1:N y N:M (conceptualmente mapeada mediante arreglos) para resolver el flujo logístico de dónde se guardan los productos y quién los provee.
 
 ---
 
-### 📋 Rubricado y Criterios de Evaluación Actualizado (Total: 20 Puntos)
+### 📋 Criterios de Evaluación del Laboratorio (Total: 20 Puntos)
 
 | Criterio | Descripción Técnica a Evaluar | Puntaje |
 | --- | --- | --- |
-| **1. CRUD Completo de Categorías** | Implementación correcta de las 5 rutas en `Categories`: Creación, Lectura (Individual y Paginada), Actualización (Parcial/PATCH o PUT) y Eliminación. | **5 Pts** |
-| **2. Modelado y Relación (Mongoose)** | Configuración del esquema de Categorías y la inyección correcta del `categoryId` (como `ObjectId` y referencia `ref`) en el esquema e interfaz de Productos. | **4 Pts** |
-| **3. Validación de Frontera (DTOs del CRUD)** | Creación y uso de `CreateCategoryDto` y `UpdateCategoryDto` con el patrón *Either* (`[error, dto]`). Uso de `PaginationDto` en el `findAll` de categorías. | **4 Pts** |
-| **4. Restricciones de Negocio Avanzadas** | **Validación Cruzada:** El servicio de productos valida que la categoría exista antes de crear/editar. **Protección de Borrado:** El servicio de categorías impide eliminar una categoría si existen productos asociados a ella. | **4 Pts** |
-| **5. Semántica REST y Buenas Prácticas** | Uso de verbos HTTP apropiados (`POST`, `GET`, `PUT/PATCH`, `DELETE`), códigos de estado (`201`, `200`, `400`, `404`, `500`) y limpieza estricta del JSON de salida (`toJSON`). | **3 Pts** |
+| **1. Modularidad Total (Nuevos Dominios)** | Creación y aislamiento de los directorios `src/suppliers/` y `src/warehouses/` con toda su estructura de archivos (Routes, Controllers, Services, DTOs). | **4 Pts** |
+| **2. Modelado de Datos Avanzado** | Enlazar `Products` con `Supplier` (1:N) e integrar un arreglo de referencias en `Warehouses` para albergar múltiples productos (Relación dimensional), aplicando `toJSON` en ambos. | **4 Pts** |
+| **3. Validaciones de Red Estrictas (DTOs)** | Implementación de DTOs de creación y actualización para ambos módulos. Validación estricta de formatos de datos específicos (Ej: teléfono, correos o números). | **4 Pts** |
+| **4. Lógica de Negocio e Integridad** | **Control de Stock/Ubicación:** Evitar agregar IDs de productos inexistentes a un almacén. **Regla de Borrado:** Impedir borrar un proveedor si tiene productos asociados. | **5 Pts** |
+| **5. Semántica y Carga Dinámica (Populate)** | Uso correcto de verbos HTTP, códigos de estado y anidación profunda de datos usando `.populate()` para mostrar la trazabilidad completa en las consultas de lectura. | **3 Pts** |
 
 ---
 
 
-# 🛠️ Actividad Práctica: Implementación del Módulo Completo de Categorías y Relaciones
+# 🏬 Laboratorio Avanzado: Módulos de Proveedores (Suppliers) y Almacenes (Warehouses)
 
 ## 📌 Contexto del Desafío
-Partiendo de la arquitectura modular de nuestra **API de Productos**, el equipo de negocio requiere clasificar los productos del inventario y administrar dicho catálogo. Tu misión como Ingeniero de Desarrollo Backend es diseñar, codificar e integrar el módulo completo de **Categorías (`Categories`)** con sus 5 rutas fundamentales (CRUD) y establecer una relación de **Uno a Muchos (1:N)** hacia el módulo de Productos.
+Nuestro sistema de inventario modular sigue creciendo. Ahora que tenemos **Productos** debidamente clasificados por **Categorías**, la empresa requiere resolver dos problemas logísticos críticos:
+1. ¿Quién nos suministra la mercancía? ➔ **Proveedores (`Suppliers`)**
+2. ¿Dónde se almacena físicamente la mercancía y qué stock hay disponible en cada sede? ➔ **Almacenes (`Warehouses`)**
+
+Tu objetivo en este laboratorio es implementar ambos módulos completos (CRUD de 5 rutas cada uno) bajo la misma arquitectura modular basada en clases, TypeScript y Mongoose.
 
 ---
 
-## 🎯 Requerimientos Técnicos
+## 📂 Nueva Estructura del Sistema Integrado
 
-### 1. Estructura del Nuevo Módulo (`Categories`)
-Debes crear la carpeta `src/categories/` respetando de forma estricta la arquitectura del proyecto:
-* `categories/dtos/create-category.dto.ts` ➔ Validación para creación (Campos obligatorios).
-* `categories/dtos/update-category.dto.ts` ➔ Validación para actualización (Campos opcionales).
-* `category.controller.ts` ➔ Manejo de req, res y códigos de estado HTTP para las 5 rutas.
-* `category.service.ts` ➔ Lógica de negocio e interacción con el modelo de Mongoose.
-* `category.route.ts` ➔ Inyección de dependencias manual y cableado local de Express.
+El mapa de módulos en `src/` debe quedar extendido de la siguiente forma:
+```text
+src/
+├── common/                  # Infraestructura compartida (config, databases, dtos)
+├── categories/              # Módulo de Categorías (Ya implementado)
+├── products/                # Módulo de Productos (Ya implementado - requiere modificaciones)
+├── suppliers/               # 🆕 Módulo de Proveedores (CRUD Completo)
+│   ├── dtos/                # create-supplier.dto.ts / update-supplier.dto.ts
+│   ├── supplier.controller.ts
+│   ├── supplier.model.ts
+│   ├── supplier.route.ts
+│   └── supplier.service.ts
+└── warehouses/              # 🆕 Módulo de Almacenes (CRUD Completo)
+    ├── dtos/                # create-warehouse.dto.ts / update-warehouse.dto.ts
+    ├── warehouse.controller.ts
+    ├── warehouse.model.ts
+    ├── warehouse.route.ts
+    └── warehouse.service.ts
 
-Debes registrar el módulo en el Enrutador Maestro (`src/routes.ts`) bajo el prefijo:
-➔ `/api/categories`
-
-### 2. Modelado de Datos y Relación
-* **Modelo de Categoría (`Category`):** Debe registrar `name` (string, único, requerido) y `description` (string, opcional). Incluye `timestamps: true` y la limpieza del JSON (`toJSON`) para mutar `_id` a `id` y remover `__v`.
-* **Modificación del Modelo de Producto:** Altera `product.model.ts` (e `IProduct`) para inyectar de forma obligatoria el enlace a la categoría:
-  ```typescript
-  categoryId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Category',
-      required: [true, 'Category ID is required']
-  }
-
-
-### 3. Matriz de Endpoints a Implementar (CRUD Completo)
-
-#### A. Módulo de Categorías (`/api/categories`)
-
-| Método | Endpoint | Descripción | Parámetros / Body Esperado | Código HTTP |
-| --- | --- | --- | --- | --- |
-| **POST** | `/` | Crear Categoría | **Body:** `name` (req), `description` (opcional) | `201 Created` |
-| **GET** | `/` | Listar Categorías | **Query Params:** `?page=1&limit=10` (Usa el `PaginationDto` global) | `200 OK` |
-| **GET** | `/:id` | Obtener una Categoría | **URL Param:** `:id` de la categoría | `200 OK` / `404` |
-| **PUT** | `/:id` | Actualizar Categoría | **URL Param:** `:id` + **Body:** campos opcionales a modificar | `200 OK` / `404` |
-| **DELETE** | `/:id` | Eliminar Categoría | **URL Param:** `:id` *(Aplica regla de protección)* | `200 OK` / `400` |
-
-#### B. Módulo de Productos Modificado (`/api/products`)
-
-* `POST /` y `PUT /:id` ➔ Ahora deben procesar obligatoriamente el `categoryId`.
-* `GET /` y `GET /:id` ➔ Deben retornar la información del producto utilizando `.populate('categoryId')` para incrustar los detalles de la categoría anidada en el JSON.
+```
 
 ---
 
-## ⚠️ Reglas de Negocio Cruzadas (Validaciones Críticas)
+## 📐 Modelado de Datos y Relaciones a Implementar
 
-Para asegurar la integridad de la base de datos a nivel de ingeniería, tus servicios deben cumplir las siguientes dos reglas operativas:
+### 1. Módulo de Proveedores (`Suppliers`)
 
-1. **Protección en Productos (`ProductsService`):** Antes de crear o actualizar un producto, el servicio debe verificar si el `categoryId` provisto por el cliente realmente existe en la colección de categorías. Si no existe, debe abortar y lanzar un error (*"Category not found"*), impidiendo la creación de productos huérfanos.
-2. **Protección en Categorías (`CategoriesService`):** Al intentar ejecutar el método `delete(id)`, el servicio de categorías debe verificar primero si existen productos asociados a ese `categoryId` en la base de datos. **Si la categoría tiene productos asignados, se debe denegar el borrado** retornando un error descriptivo (*"Cannot delete category with active products"*).
+Representa a las empresas externas que nos surten.
+
+* **Modelo Mongoose (`Supplier`):**
+* `name` (String, requerido, único).
+* `email` (String, requerido, validación de formato de correo).
+* `phone` (String, requerido).
+* `address` (String, opcional).
+* `timestamps: true` + limpieza `toJSON` (Remover `__v`, cambiar `_id` a `id`).
+
+
+* **Relación con Productos:**
+* Modifica el esquema de Productos (`product.model.ts`) para asociarle un proveedor obligatorio:
+```typescript
+supplierId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Supplier',
+    required: [true, 'Supplier ID is required']
+}
+
+```
+
+
+
+
+
+### 2. Módulo de Almacenes (`Warehouses`)
+
+Representa los depósitos físicos (Sede Norte, Sede Centro, Sede Principal, etc.).
+
+* **Modelo Mongoose (`Warehouse`):**
+* `name` (String, requerido, único - Ej: "Almacén Central").
+* `location` (String, requerido - Ej: "Zona Industrial, Galpón 4").
+* `products`: Un arreglo de referencias que contendrá los IDs de los productos almacenados en esa sede:
+```typescript
+products: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Product'
+}]
+
+```
+
+
+* `timestamps: true` + limpieza `toJSON`.
+
+
 
 ---
 
-## 📥 Criterios de Entrega y Evaluación
+## 📑 Matriz de Endpoints Requeridos (CRUD x10)
 
-1. **Tipado Estricto:** Cero uso del tipo `any` en firmas de métodos, interfaces o DTOs.
-2. **Clean Code:** Aplicación del patrón *Early Return* en validaciones y nombres de variables descriptivos en español/inglés estandarizado.
-3. **Robustez:** Control total de excepciones. Si un ID buscado en `findOne` o `delete` no existe en MongoDB, la API debe responder un estado `404 Not Found` o un error controlado, nunca colapsar el proceso de Node.
+Debes registrar los nuevos puntos de distribución en el enrutador maestro `src/routes.ts`:
 
-> 💡 *“Un buen arquitecto de software no es el que escribe el código más complejo, sino el que diseña las reglas necesarias para que los datos nunca pierdan su integridad.”* ¡Mucho éxito en el desarrollo del módulo!
+* Prefijo: `/api/suppliers`
+* Prefijo: `/api/warehouses`
 
+Ambos módulos deben implementar las **5 rutas estándar**:
+
+| Verbo HTTP | Endpoint | Acción Requerida |
+| --- | --- | --- |
+| **POST** | `/` | Crear registro (Aplica `CreateDto.validate()`) |
+| **GET** | `/` | Listar registros de forma paginada (Aplica `PaginationDto`) |
+| **GET** | `/:id` | Buscar un registro específico por su ID |
+| **PUT** | `/:id` | Actualizar parcialmente (Aplica `UpdateDto.validate()`) |
+| **DELETE** | `/:id` | Eliminar registro (Aplicando reglas de integridad) |
+
+---
+
+## ⚠️ Reglas de Negocio Estrictas (Filtros de Integridad)
+
+Para aprobar el laboratorio, los métodos de tus nuevos servicios deben validar la consistencia lógica del sistema antes de tocar la base de datos:
+
+1. **Integridad en Productos (`ProductsService`):** Al crear o actualizar un producto, el sistema ahora debe validar que **tanto** el `categoryId` como el `supplierId` existan en sus respectivas colecciones. Si alguno no existe, la operación se cancela inmediatamente con un error `400`.
+2. **Protección de Proveedores (`SuppliersService`):** No se permite la eliminación (`delete`) de un proveedor si este tiene productos asociados en el catálogo actual. Debe responder un error: *"Cannot delete a supplier with active products"*.
+3. **Consistencia de Inventario (`WarehousesService`):** Al crear o actualizar un Almacén, el arreglo de `products` provisto en el JSON del cliente puede venir vacío o con IDs de productos. El servicio debe verificar que **todos** los IDs de productos enviados existan realmente en la colección de Productos. Si el cliente envía un ID falso o corrupto, el almacén no se crea.
+
+---
+
+## 🔍 Carga Enriquecida de Datos (Populate Avanzado)
+
+Cuando el cliente consulte un almacén por su ID (`GET /api/warehouses/:id`), la respuesta JSON no debe mostrar una lista de textos planos. Debes usar la función `.populate()` de Mongoose de forma anidada para retornar toda la traza de la cadena de suministros en una sola respuesta:
+
+* El Almacén debe poblar sus `products`.
+* A su vez, cada producto dentro del almacén debe venir con su `categoryId` y su `supplierId` completamente resueltos en objetos legibles.
+
+---
+
+## 📥 Instrucciones de Entrega
+
+* Todo el código debe estar completamente tipado en TypeScript. Queda prohibido el uso deliberado de instrucciones `any`.
+* El servidor debe encender limpiamente mostrando los logs de conexión.
+* Prepara una colección de Postman o un archivo de pruebas HTTP para demostrar el funcionamiento del flujo completo (Crear Proveedor ➔ Crear Categoría ➔ Crear Producto enlazado a ambos ➔ Guardar Producto en un Almacén ➔ Consultar el Almacén).
+
+> 💡 *“En el software empresarial, los datos aislados no tienen valor. La verdadera destreza de un ingeniero se demuestra al programar los hilos que conectan e interrelacionan toda la infraestructura del negocio de forma segura y coherente.”* ¡Manos a la obra!
+
+- Ing. Luis Reyes
