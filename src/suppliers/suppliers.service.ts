@@ -1,5 +1,5 @@
 import { Product } from "../common/databases/mongodb/models/product.model";
-import { Supplier } from "../common/databases/mongodb/models/supplier.model";
+import { Supplier } from "./supplier.model";
 import { PaginationDto } from "../common/dtos/pagination/pagination.dto";
 import { CreateSupplierDto } from "./dtos/create-supplier.dto";
 import { UpdateSupplierDto } from "./dtos/update-supplier.dto";

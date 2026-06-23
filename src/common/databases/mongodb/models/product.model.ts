@@ -5,7 +5,7 @@ export interface IProduct extends Document {
     price: number;
     stock: number;
     category: mongoose.Types.ObjectId;
-    supplier: mongoose.Types.ObjectId;
+    supplierId: mongoose.Types.ObjectId;
     description: string | undefined;
 }
 
@@ -29,10 +29,10 @@ const productSchema = new Schema<IProduct>({
         ref: "Category",
         required: [true, "Category is required"],
     },
-    supplier: {
+    supplierId: {
         type: Schema.Types.ObjectId,
         ref: "Supplier",
-        required: [true, "Supplier is required"],
+        required: [true, "Supplier ID is required"],
     },
     description: {
         type: String,
