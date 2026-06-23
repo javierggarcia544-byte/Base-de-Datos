@@ -129,3 +129,4 @@ Todas las peticiones deben llevar el prefijo base `/api`.
 * **Patrón Either (Tuplas de control):** Los métodos estáticos de validación de los DTOs retornan una tupla `[error, dto]`, eliminando el sobrecosto de lanzar excepciones constantes (`throw Error`) en la capa de red.
 * **Fallo Temprano (Fail-Fast):** Uso estricto de la librería `env-var` para detener de inmediato el encendido del sistema si falta alguna credencial o variable de entorno obligatoria.
 * **Single Source of Truth (SSOT):** El archivo `env.config.ts` encapsula el objeto `ENVS`, de modo que ninguna otra capa del software tiene acceso o dependencia directa del objeto global nativo de Node `process.env`.
+# Base-de-Datos
