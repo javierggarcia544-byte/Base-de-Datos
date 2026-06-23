@@ -3,6 +3,7 @@ import { ProductsService } from "./product.service";
 import { CreateProductDto } from "./dtos/create-product.dto";
 import { UpdateProductDto } from "./dtos/update-product.dto";
 import { PaginationDto } from "../common/dtos/pagination/pagination.dto";
+import { HandlerError } from "../errors/handler.error";
 
 export class ProductsController {
     constructor(
@@ -51,10 +52,12 @@ export class ProductsController {
     }
 
     findOne = (req: Request, res: Response) => {
-        this.handleResult(res, this.productsService.findOne(req.params.id as string));
+        this.productsService.findOne(req.params.id as string)
+        .catch((error) => HandlerError.error(error,res))
     }
 
     delete = (req: Request, res: Response) => {
-        this.handleResult(res, this.productsService.delete(req.params.id as string));
+        this.productsService.delete(req.params.id as string)
+        .catch((error) => HandlerError.error(error,res))   
     }
 }

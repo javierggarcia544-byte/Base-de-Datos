@@ -3,6 +3,7 @@ import { SuppliersService } from "./suppliers.service";
 import { CreateSupplierDto } from "./dtos/create-supplier.dto";
 import { UpdateSupplierDto } from "./dtos/update-supplier.dto";
 import { PaginationDto } from "../common/dtos/pagination/pagination.dto";
+import { HandlerError } from "../errors/handler.error";
 
 export class SuppliersController {
     constructor(
@@ -51,10 +52,12 @@ export class SuppliersController {
     }
 
     findOne = (req: Request, res: Response) => {
-        this.handleResult(res, this.suppliersService.findOne(req.params.id as string));
+        this.suppliersService.findOne(req.params.id as string)
+            .catch((error) => HandlerError.error(error,res))
     }
 
     delete = (req: Request, res: Response) => {
-        this.handleResult(res, this.suppliersService.delete(req.params.id as string));
+        this.suppliersService.delete(req.params.id as string)
+        .catch((error) => HandlerError.error(error,res));
     }
 }
