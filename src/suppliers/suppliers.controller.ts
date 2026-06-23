@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { ProductsService } from "./product.service";
-import { CreateProductDto } from "./dtos/create-product.dto";
-import { UpdateProductDto } from "./dtos/update-product.dto";
+import { SuppliersService } from "./suppliers.service";
+import { CreateSupplierDto } from "./dtos/create-supplier.dto";
+import { UpdateSupplierDto } from "./dtos/update-supplier.dto";
 import { PaginationDto } from "../common/dtos/pagination/pagination.dto";
 
-export class ProductsController {
+export class SuppliersController {
     constructor(
-        private readonly productsService: ProductsService
+        private readonly suppliersService: SuppliersService
     ) { }
 
     private handleResult<T>(res: Response, promise: Promise<T>, successStatus: number = 200) {
@@ -22,23 +22,23 @@ export class ProductsController {
     }
 
     create = (req: Request, res: Response) => {
-        const [error, createProductDto] = CreateProductDto.validate(req.body);
+        const [error, createSupplierDto] = CreateSupplierDto.validate(req.body);
         if (error) {
             res.status(400).json({ message: error, status: 400 });
             return;
         }
 
-        this.handleResult(res, this.productsService.create(createProductDto!), 201);
+        this.handleResult(res, this.suppliersService.create(createSupplierDto!), 201);
     }
 
     update = (req: Request, res: Response) => {
-        const [error, updateProductDto] = UpdateProductDto.validate(req.body);
+        const [error, updateSupplierDto] = UpdateSupplierDto.validate(req.body);
         if (error) {
             res.status(400).json({ message: error, status: 400 });
             return;
         }
 
-        this.handleResult(res, this.productsService.update(req.params.id as string, updateProductDto!));
+        this.handleResult(res, this.suppliersService.update(req.params.id as string, updateSupplierDto!));
     }
 
     findAll = (req: Request, res: Response) => {
@@ -47,14 +47,14 @@ export class ProductsController {
             res.status(400).json({ message: error, status: 400 });
             return;
         }
-        this.handleResult(res, this.productsService.findAll(paginationDto!));
+        this.handleResult(res, this.suppliersService.findAll(paginationDto!));
     }
 
     findOne = (req: Request, res: Response) => {
-        this.handleResult(res, this.productsService.findOne(req.params.id as string));
+        this.handleResult(res, this.suppliersService.findOne(req.params.id as string));
     }
 
     delete = (req: Request, res: Response) => {
-        this.handleResult(res, this.productsService.delete(req.params.id as string));
+        this.handleResult(res, this.suppliersService.delete(req.params.id as string));
     }
 }

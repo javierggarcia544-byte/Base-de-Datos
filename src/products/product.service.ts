@@ -1,4 +1,5 @@
 import { Category } from "../common/databases/mongodb/models/category.model";
+import { Supplier } from "../common/databases/mongodb/models/supplier.model";
 import { Product } from "../common/databases/mongodb/models/product.model";
 import { PaginationDto } from "../common/dtos/pagination/pagination.dto";
 import { CreateProductDto } from "./dtos/create-product.dto";
@@ -7,9 +8,11 @@ import { UpdateProductDto } from "./dtos/update-product.dto";
 export class ProductsService {
     async create(createProductDto: CreateProductDto) {
         try {
-
             const category = await Category.findById(createProductDto.category);
-            if (!category) throw new Error(`Category with id #${category} not found`);
+            if (!category) return "Category not found";
+
+            const supplier = await Supplier.findById(createProductDto.supplier);
+            if (!supplier) return "Supplier not found";
 
             const product = await Product.create(createProductDto);
             if (!product) throw new Error("Failed to create product");
@@ -28,7 +31,8 @@ export class ProductsService {
             const products = await Product.find()
                 .skip(skip)
                 .limit(limit)
-                .populate("category", "id name");
+                .populate("category", "id name")
+                .populate("supplier", "id name");
             const total = await Product.countDocuments();
             return {
                 data: products,
@@ -45,12 +49,15 @@ export class ProductsService {
     }
 
     async update(id: string, updateProductDto: UpdateProductDto) {
-
         try {
-
             if (updateProductDto.category) {
                 const category = await Category.findById(updateProductDto.category);
-                if (!category) throw new Error(`Category with id #${category} not found`);
+                if (!category) return "Category not found";
+            }
+
+            if (updateProductDto.supplier) {
+                const supplier = await Supplier.findById(updateProductDto.supplier);
+                if (!supplier) return "Supplier not found";
             }
 
             const product = await Product.findOneAndUpdate({ _id: id }, updateProductDto, { new: true });
@@ -64,7 +71,7 @@ export class ProductsService {
 
     async delete(id: string) {
         try {
-            const product = await Product.findOneAndDelete({ _id: id }); //! Nunca aplicar eliminación física en un producto, lo ideal es marcarlo como inactivo o eliminado
+            const product = await Product.findOneAndDelete({ _id: id });
             if (!product) throw new Error("Product not found");
 
             return product;
@@ -75,7 +82,9 @@ export class ProductsService {
 
     async findOne(id: string) {
         try {
-            const product = await Product.findOne({ _id: id }).populate("category", "id name");
+            const product = await Product.findOne({ _id: id })
+                .populate("category", "id name")
+                .populate("supplier", "id name");
             if (!product) throw new Error("Product not found");
 
             return product;
