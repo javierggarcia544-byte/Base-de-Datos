@@ -39,7 +39,8 @@ export class SuppliersController {
             return;
         }
 
-        this.handleResult(res, this.suppliersService.update(req.params.id as string, updateSupplierDto!));
+        this.suppliersService.update(req.params.id as string, updateSupplierDto!)
+        .catch((error) => HandlerError.error(error,res));
     }
 
     findAll = (req: Request, res: Response) => {
@@ -53,7 +54,7 @@ export class SuppliersController {
 
     findOne = (req: Request, res: Response) => {
         this.suppliersService.findOne(req.params.id as string)
-            .catch((error) => HandlerError.error(error,res))
+        .catch((error) => HandlerError.error(error,res))
     }
 
     delete = (req: Request, res: Response) => {

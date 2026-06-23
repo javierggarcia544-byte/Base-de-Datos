@@ -39,7 +39,8 @@ export class ProductsController {
             return;
         }
 
-        this.handleResult(res, this.productsService.update(req.params.id as string, updateProductDto!));
+        this.productsService.update(req.params.id as string, updateProductDto!)
+        .catch((error) => HandlerError.error(error,res));
     }
 
     findAll = (req: Request, res: Response) => {

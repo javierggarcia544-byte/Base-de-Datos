@@ -31,7 +31,7 @@ export class CategoriesController {
 
         this.categoriesService.update(req.params.id as string, updateCategoryDto!)
             .then((product) => res.status(200).json(product))
-            .catch((error) => res.status(500).json({ error: error.message }));
+            .catch((error) => HandlerError.error(error,res));
     }
 
     findAll = (req: Request, res: Response) => {
@@ -57,6 +57,5 @@ export class CategoriesController {
         this.categoriesService.delete(req.params.id as string)
             .then((product) => res.status(200).json(product))
             .catch((error) => HandlerError.error(error,res));
-           
     }
 }

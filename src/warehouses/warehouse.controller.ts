@@ -31,7 +31,7 @@ export class WarehousesController {
 
         this.warehousesService.update(req.params.id as string, updateWarehouseDto!)
             .then((warehouse) => res.status(200).json(warehouse))
-            .catch((error) => res.status(500).json({ error: error.message }));
+            .catch((error) => HandlerError.error(error,res));
     }
 
     findAll = (req: Request, res: Response) => {
