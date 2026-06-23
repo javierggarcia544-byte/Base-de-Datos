@@ -3,6 +3,7 @@ import { WarehousesService } from "./warehouse.service";
 import { CreateWarehouseDto } from "./dtos/create-warehouse.dto";
 import { UpdateWarehouseDto } from "./dtos/update-warehouse.dto";
 import { PaginationDto } from "../common/dtos/pagination/pagination.dto";
+import { HandlerError } from "../errors/handler.error";
 
 export class WarehousesController {
     constructor(
@@ -47,12 +48,12 @@ export class WarehousesController {
     findOne = (req: Request, res: Response) => {
         this.warehousesService.findOne(req.params.id as string)
             .then((warehouse) => res.status(200).json(warehouse))
-            .catch((error) => res.status(500).json({ error: error.message }));
+            .catch((error) => HandlerError.error(error,res));
     }
 
     delete = (req: Request, res: Response) => {
         this.warehousesService.delete(req.params.id as string)
             .then((warehouse) => res.status(200).json(warehouse))
-            .catch((error) => res.status(500).json({ error: error.message }));
+            .catch((error) => HandlerError.error(error,res));
     }
 }
